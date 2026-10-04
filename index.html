@@ -4,24 +4,431 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>negev.lol</title>
+  <meta name="description" content="No negev no win.">
+  <meta name="theme-color" content="#ffb21e">
+  <meta property="og:title" content="negev.lol">
+  <meta property="og:description" content="No negev no win.">
+  <meta property="og:url" content="https://negev.lol/">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1f15'/%3E%3Cg stroke='%23ffb21e' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M32 8v14M32 42v14M8 32h14M42 32h14'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='3.5' fill='%23ffb21e'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:opsz,wght@10..72,100..900&family=Big+Shoulders+Stencil:opsz,wght@10..72,100..900&display=swap" rel="stylesheet">
   <style>
-    :root { color-scheme: dark; }
-    html, body { height: 100%; margin: 0; }
-    body {
-      display: grid;
-      place-items: center;
-      background: #0d1117;
-      color: #e6edf3;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    :root {
+      --drab: #1a1f15;      /* olive-drab background */
+      --crate: #232a1c;     /* raised surface */
+      --bone: #ece6d3;      /* main text */
+      --dust: #9aa08a;      /* secondary text */
+      --line: rgba(236, 230, 211, 0.12);
+      --tracer: #ffb21e;    /* the one accent: tracer rounds */
+      --ember: #ff6a1a;     /* hot core of a fresh hit, used only in effects */
+
+      --col: 54rem;
+      --gutter: 1rem;
+
+      --crosshair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke='%231a1f15' stroke-width='4' stroke-linecap='square'%3E%3Cpath d='M16 2v9M16 21v9M2 16h9M21 16h9'/%3E%3C/g%3E%3Cg stroke='%23ffb21e' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M16 3v7M16 22v7M3 16h7M22 16h7'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
     }
-    h1 { font-size: clamp(2rem, 8vw, 4rem); margin: 0; letter-spacing: -0.02em; }
-    p { color: #7d8590; text-align: center; margin-top: 0.75rem; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; background: var(--drab); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      background:
+        radial-gradient(120% 70% at 85% -10%, rgba(255, 178, 30, 0.10), transparent 60%),
+        var(--drab);
+      color: var(--bone);
+      font-family: "Big Shoulders", "Arial Narrow", Arial, sans-serif;
+      font-optical-sizing: auto;
+      line-height: 1.4;
+      cursor: var(--crosshair);
+    }
+    a, button { cursor: var(--crosshair); }
+    ::selection { background: var(--tracer); color: var(--drab); }
+
+    .page {
+      max-width: var(--col);
+      margin: 0 auto;
+      padding: 1.25rem var(--gutter) 3rem;
+      position: relative;
+    }
+
+    /* Top bar */
+    .bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 1.25rem;
+    }
+    .wordmark {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: var(--bone);
+      text-decoration: none;
+    }
+    .wordmark span { color: var(--dust); font-weight: 500; }
+    .ammo {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 1.6rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--tracer);
+      line-height: 1;
+    }
+    .ammo .rounds {
+      display: inline-flex;
+      gap: 3px;
+      align-items: flex-end;
+      height: 1rem;
+    }
+    .ammo .rounds i {
+      display: block;
+      width: 4px;
+      height: 100%;
+      border-radius: 2px 2px 0 0;
+      background: currentColor;
+    }
+    .ammo .count { min-width: 3ch; text-align: right; }
+    .ammo.empty { color: var(--ember); }
+    .ammo.reloading .count { animation: blink 0.35s steps(2) infinite; }
+    @keyframes blink { 50% { opacity: 0.25; } }
+
+    /* Hero quote: stencil, sized to span the column */
+    .quote {
+      margin: clamp(1.5rem, 7vh, 4rem) 0 clamp(1.75rem, 6vh, 3.25rem);
+      font-family: "Big Shoulders Stencil", "Big Shoulders", Impact, sans-serif;
+      font-weight: 900;
+      /* sized so NO NEGEV spans the column; NO WIN is scaled up to match */
+      font-size: calc(min(100vw - 2 * var(--gutter), var(--col) - 2 * var(--gutter)) / 3.56);
+      line-height: 0.82;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      color: var(--bone);
+      will-change: transform;
+    }
+    .quote .line { display: block; white-space: nowrap; }
+    .quote .line + .line { color: var(--tracer); font-size: 1.265em; }
+
+    /* Video with viewfinder corners */
+    .clip { margin: 0 0 clamp(2.5rem, 7vh, 4rem); }
+    .frame {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      pointer-events: none;
+      --c: var(--tracer);
+      --l: 22px;
+      --w: 2px;
+      background:
+        linear-gradient(var(--c), var(--c)) top left / var(--l) var(--w),
+        linear-gradient(var(--c), var(--c)) top left / var(--w) var(--l),
+        linear-gradient(var(--c), var(--c)) top right / var(--l) var(--w),
+        linear-gradient(var(--c), var(--c)) top right / var(--w) var(--l),
+        linear-gradient(var(--c), var(--c)) bottom left / var(--l) var(--w),
+        linear-gradient(var(--c), var(--c)) bottom left / var(--w) var(--l),
+        linear-gradient(var(--c), var(--c)) bottom right / var(--l) var(--w),
+        linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--l);
+      background-repeat: no-repeat;
+    }
+    .frame iframe, .play {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .play {
+      padding: 0;
+      background: #000;
+      overflow: hidden;
+      color: var(--bone);
+      font: inherit;
+    }
+    .play img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.75) brightness(0.72) contrast(1.05);
+      transition: filter 200ms ease;
+    }
+    .play::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(26, 31, 21, 0.85));
+    }
+    .play .cta {
+      position: absolute;
+      left: 1.1rem;
+      bottom: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 1rem 0.55rem 0.85rem;
+      background: var(--tracer);
+      color: var(--drab);
+      font-size: 1.25rem;
+      font-weight: 800;
+      line-height: 1;
+      transition: background-color 150ms ease;
+    }
+    .play .cta svg { width: 0.9em; height: 0.9em; fill: currentColor; }
+    .play:hover img, .play:focus-visible img { filter: saturate(1) brightness(0.9) contrast(1.05); }
+    .play:hover .cta, .play:focus-visible .cta { background: var(--bone); }
+    .play:focus-visible { outline: 3px solid var(--tracer); outline-offset: 4px; }
+    .clip figcaption {
+      margin-top: 0.9rem;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--dust);
+    }
+
+    /* Links */
+    .links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--line);
+    }
+    .links li { border-bottom: 1px solid var(--line); }
+    .links a {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 0.5rem;
+      color: var(--bone);
+      text-decoration: none;
+      isolation: isolate;
+    }
+    .links a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--tracer);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 180ms cubic-bezier(.2, .7, .2, 1);
+    }
+    .links .platform {
+      font-size: clamp(1.75rem, 6vw, 2.4rem);
+      font-weight: 800;
+      line-height: 1;
+    }
+    .links .handle {
+      font-size: clamp(1.05rem, 3.6vw, 1.3rem);
+      font-weight: 500;
+      color: var(--dust);
+      white-space: nowrap;
+    }
+    .links a:hover, .links a:focus-visible { color: var(--drab); outline: none; }
+    .links a:hover .handle, .links a:focus-visible .handle { color: var(--drab); }
+    .links a:hover::before, .links a:focus-visible::before { transform: scaleX(1); }
+    .links a:focus-visible { box-shadow: 0 0 0 2px var(--drab), 0 0 0 4px var(--tracer); }
+
+    .hint {
+      margin: 2.25rem 0 0;
+      font-size: 1rem;
+      color: var(--dust);
+    }
+    .hint .touch { display: none; }
+    @media (hover: none) {
+      .hint .mouse { display: none; }
+      .hint .touch { display: inline; }
+    }
+
+    /* Bullet holes */
+    .holes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 5;
+    }
+    .hole {
+      position: absolute;
+      width: var(--hole, 12px);
+      height: var(--hole, 12px);
+      margin: calc(var(--hole, 12px) / -2) 0 0 calc(var(--hole, 12px) / -2);
+      border-radius: 50%;
+      background: radial-gradient(circle, #050604 0 30%, #7a5a22 40%, rgba(255, 178, 30, 0.7) 50%, rgba(255, 178, 30, 0.15) 62%, transparent 70%);
+      box-shadow: 0 0 6px 1px rgba(255, 120, 20, 0.35);
+      animation: hit 700ms ease-out both;
+    }
+    @keyframes hit {
+      0%   { transform: scale(2.6); box-shadow: 0 0 24px 9px var(--ember), 0 0 6px 2px var(--tracer); }
+      35%  { box-shadow: 0 0 12px 4px rgba(255, 106, 26, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 6px 1px rgba(255, 120, 20, 0.35); }
+    }
+    .holes.clearing .hole { transition: opacity 400ms ease; opacity: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hole { animation: none; }
+      .links a::before, .play img, .play .cta { transition: none; }
+      .ammo.reloading .count { animation: none; }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <h1>negev.lol</h1>
-    <p>coming soon</p>
+  <div class="holes" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="bar">
+      <a class="wordmark" href="/">negev<span>.lol</span></a>
+      <div class="ammo" aria-hidden="true">
+        <span class="rounds"><i></i><i></i><i></i></span>
+        <span class="count">150</span>
+      </div>
+    </header>
+
+    <h1 class="quote"><span class="line">No negev</span><span class="line">no win</span></h1>
+
+    <figure class="clip">
+      <div class="frame">
+        <button class="play" type="button" data-id="gVtMugdBdO8" aria-label="Play video: Negev on b site">
+          <img src="https://i.ytimg.com/vi/gVtMugdBdO8/hqdefault.jpg" alt="" width="480" height="360">
+          <span class="cta"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg>Play</span>
+        </button>
+      </div>
+      <figcaption>Negev on b site</figcaption>
+    </figure>
+
+    <ul class="links">
+      <li><a href="https://www.tiktok.com/@atlas"><span class="platform">TikTok</span><span class="handle">@atlas</span></a></li>
+      <li><a href="https://medal.tv/u/snorlax"><span class="platform">Medal</span><span class="handle">@snorlax</span></a></li>
+      <li><a href="https://t.me/murkrow"><span class="platform">Telegram</span><span class="handle">@murkrow</span></a></li>
+      <li><a href="https://steamcommunity.com/profiles/76561199612436579/"><span class="platform">Steam</span><span class="handle">Profile</span></a></li>
+    </ul>
+
+    <p class="hint"><span class="mouse">Click anywhere to shoot. Press R to reload.</span><span class="touch">Tap anywhere to shoot.</span></p>
   </main>
+
+  <script>
+  (() => {
+    const MAG = 150;
+    const holes = document.querySelector('.holes');
+    const ammo = document.querySelector('.ammo');
+    const countEl = ammo.querySelector('.count');
+    const quote = document.querySelector('.quote');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let rounds = MAG;
+    let reloading = false;
+
+    const render = () => {
+      countEl.textContent = rounds;
+      ammo.classList.toggle('empty', rounds === 0);
+    };
+
+    const hole = (x, y) => {
+      const h = document.createElement('span');
+      h.className = 'hole';
+      h.style.left = x + 'px';
+      h.style.top = y + 'px';
+      holes.appendChild(h);
+    };
+
+    const fire = (x, y) => {
+      if (reloading || rounds === 0) return false;
+      rounds--;
+      render();
+      hole(x, y);
+      if (rounds === 0) reload();
+      return true;
+    };
+
+    function reload() {
+      if (reloading || rounds === MAG) return;
+      reloading = true;
+      ammo.classList.add('reloading');
+      holes.classList.add('clearing');
+      setTimeout(() => {
+        holes.replaceChildren();
+        holes.classList.remove('clearing');
+        rounds = MAG;
+        reloading = false;
+        ammo.classList.remove('reloading');
+        render();
+      }, reduced ? 300 : 1400);
+    }
+
+    // Keep the hole layer as tall as the page
+    const sizeLayer = () => {
+      holes.style.height = document.documentElement.scrollHeight + 'px';
+      const fs = parseFloat(getComputedStyle(quote).fontSize);
+      holes.style.setProperty('--hole', Math.min(12, Math.max(7, fs * 0.05)) + 'px');
+    };
+
+    // Opening spray: kicks up for the first shots, then settles into a laser
+    const spray = () => {
+      const line = quote.querySelector('.line');
+      const range = document.createRange();
+      range.selectNodeContents(line);
+      const r = range.getBoundingClientRect();
+      const fs = parseFloat(getComputedStyle(line).fontSize);
+      const shots = 30;
+      let x = r.left + scrollX + r.width * 0.6;
+      let y = r.bottom + scrollY - r.height * 0.2;
+      let i = 0;
+      const step = () => {
+        if (i > 0 && i < 11) {
+          y -= fs * (0.055 + Math.random() * 0.02);
+          x += (i > 3 ? (i % 2 ? 1 : -1) * fs * 0.03 : 0) + (Math.random() - 0.5) * fs * 0.03;
+        }
+        const jitter = i < 11 ? 0 : fs * 0.05;
+        if (!fire(x + (Math.random() - 0.5) * jitter, y + (Math.random() - 0.5) * jitter)) return;
+        quote.animate(
+          [{ transform: 'translateY(-2px)' }, { transform: 'none' }],
+          { duration: 70, easing: 'ease-out' }
+        );
+        if (++i < shots) setTimeout(step, 72);
+      };
+      step();
+    };
+
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      if (e.target.closest('a, button, iframe')) return;
+      fire(e.pageX, e.pageY);
+    });
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && !e.altKey) reload();
+    });
+
+    // Click-to-load YouTube player
+    const play = document.querySelector('.play');
+    play.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0`;
+      f.title = 'Negev on b site';
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      f.allowFullscreen = true;
+      play.replaceWith(f);
+      f.focus();
+    });
+
+    render();
+    const start = () => {
+      sizeLayer();
+      if (!reduced) setTimeout(spray, 350);
+    };
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(start);
+    addEventListener('resize', sizeLayer);
+  })();
+  </script>
 </body>
 </html>
