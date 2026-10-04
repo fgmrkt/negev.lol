@@ -284,6 +284,19 @@
     .links a:hover::before, .links a:focus-visible::before { transform: scaleX(1); }
     .links a:focus-visible { box-shadow: 0 0 0 2px var(--oxblood), 0 0 0 4px var(--gold); }
 
+    /* Honorable mention */
+    .mention-title {
+      margin: 2.75rem 0 0.6rem;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--bronze);
+    }
+    .links-small .platform {
+      font-size: clamp(1.3rem, 4.6vw, 1.7rem);
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
     .hint { margin: 2.25rem 0 0; font-size: 1rem; color: var(--bronze); }
     .hint .touch { display: none; }
     @media (hover: none) {
@@ -301,8 +314,10 @@
       border-radius: 50%;
       background: radial-gradient(circle, #050202 0 30%, #6e2a18 40%, rgba(240, 177, 108, 0.75) 50%, rgba(241, 95, 65, 0.18) 62%, transparent 70%);
       box-shadow: 0 0 6px 1px rgba(241, 95, 65, 0.35);
-      animation: hit 700ms ease-out both;
+      /* flash on impact, then fade away after a moment */
+      animation: hit 700ms ease-out both, fade 900ms ease-in 1600ms forwards;
     }
+    @keyframes fade { to { opacity: 0; } }
     @keyframes hit {
       0%   { transform: scale(2.6); box-shadow: 0 0 24px 9px var(--ember), 0 0 6px 2px var(--gold); }
       35%  { box-shadow: 0 0 12px 4px rgba(241, 95, 65, 0.6); }
@@ -315,7 +330,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .hole { animation: none; }
+      .hole { animation: fade 900ms ease-in 1600ms forwards; }
       .links a::before, .play img, .play .cta { transition: none; }
       .ammo.reloading .count { animation: none; }
     }
@@ -350,12 +365,12 @@
 
     <figure class="clip">
       <div class="frame">
-        <button class="play" type="button" data-id="gVtMugdBdO8" data-title="admins give him a negev" aria-label="Play video: admins give him a negev">
+        <button class="play" type="button" data-id="gVtMugdBdO8" data-title="Negev on site on B" aria-label="Play video: Negev on site on B">
           <img src="https://i.ytimg.com/vi/gVtMugdBdO8/hqdefault.jpg" alt="" width="480" height="360">
           <span class="cta"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg>Play</span>
         </button>
       </div>
-      <figcaption>admins give him a negev</figcaption>
+      <figcaption>Negev on site on B</figcaption>
     </figure>
 
     <ul class="links">
@@ -364,6 +379,11 @@
       <li><a href="https://t.me/murkrow"><span class="platform">Telegram</span><span class="handle">@murkrow</span></a></li>
       <li><a href="https://steamcommunity.com/profiles/76561199612436579/"><span class="platform">Steam</span><span class="handle">Profile</span></a></li>
       <li><a href="https://www.faceit.com/en/players/flixpeek"><span class="platform">FACEIT</span><span class="handle">@flixpeek</span></a></li>
+    </ul>
+
+    <h2 class="mention-title">Honorable mention</h2>
+    <ul class="links links-small">
+      <li><a href="https://steamcommunity.com/id/milliondollarextreme"><span class="platform">milliondollarextreme</span><span class="handle">Steam</span></a></li>
     </ul>
 
     <p class="hint"><span class="mouse">Hold anywhere to shoot. Press R to reload.</span><span class="touch">Hold anywhere to shoot.</span></p>
@@ -419,6 +439,7 @@
       h.className = 'hole';
       h.style.left = x + 'px';
       h.style.top = y + 'px';
+      h.addEventListener('animationend', (e) => { if (e.animationName === 'fade') h.remove(); });
       holes.appendChild(h);
     };
 
