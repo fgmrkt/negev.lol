@@ -79,6 +79,25 @@
       text-decoration: none;
     }
     .wordmark span { color: var(--bronze); font-weight: 500; }
+    .hud { display: flex; align-items: center; gap: 1.1rem; }
+    .sound {
+      display: grid;
+      place-items: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      padding: 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--bronze);
+      transition: color 120ms ease, background-color 120ms ease;
+    }
+    .sound svg { width: 1.35rem; height: 1.35rem; }
+    .sound .off { display: none; }
+    .sound[aria-pressed="false"] .on { display: none; }
+    .sound[aria-pressed="false"] .off { display: block; }
+    .sound:hover { color: var(--gold); background: rgba(195, 150, 122, 0.12); }
+    .sound:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .ammo {
       display: flex;
       align-items: center;
@@ -348,9 +367,15 @@
   <main class="page">
     <header class="bar">
       <a class="wordmark" href="/">negev<span>.lol</span></a>
-      <div class="ammo" aria-hidden="true">
-        <span class="rounds"><i></i><i></i><i></i></span>
-        <span class="count">150</span>
+      <div class="hud">
+        <button class="sound" type="button" aria-pressed="true" aria-label="Shooting sound">
+          <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+          <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>
+        </button>
+        <div class="ammo" aria-hidden="true">
+          <span class="rounds"><i></i><i></i><i></i></span>
+          <span class="count">150</span>
+        </div>
       </div>
     </header>
 
@@ -404,6 +429,117 @@
     let rounds = MAG;
     let reloading = false;
     let trigger = null;
+
+    // ---- Gunshot sound, synthesized in the browser ----
+    // Gunshot synth: sharp crack + chunky mid body + low thump + bolt tick.
+    // `when` is the start time in the context's clock; `v` varies each shot slightly.
+    function makeGunAudio(ctx, out) {
+      const comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -16;
+      comp.knee.value = 8;
+      comp.ratio.value = 5;
+      comp.attack.value = 0.002;
+      comp.release.value = 0.1;
+      const master = ctx.createGain();
+      master.gain.value = 0.7;
+      comp.connect(master).connect(out);
+
+      const noise = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.6), ctx.sampleRate);
+      const data = noise.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+      // Soft clipper for some grit on the body
+      const shaper = ctx.createWaveShaper();
+      const curve = new Float32Array(1024);
+      for (let i = 0; i < curve.length; i++) {
+        const x = (i / (curve.length - 1)) * 2 - 1;
+        curve[i] = Math.tanh(2.2 * x);
+      }
+      shaper.curve = curve;
+      shaper.connect(comp);
+
+      const env = (g, when, peak, decay) => {
+        g.gain.setValueAtTime(0.0001, when);
+        g.gain.exponentialRampToValueAtTime(peak, when + 0.002);
+        g.gain.exponentialRampToValueAtTime(0.0001, when + decay);
+      };
+      const noiseHit = (when, type, freq, q, peak, decay, dest, rate) => {
+        const src = ctx.createBufferSource();
+        src.buffer = noise;
+        src.playbackRate.value = rate;
+        const f = ctx.createBiquadFilter();
+        f.type = type;
+        f.frequency.value = freq;
+        f.Q.value = q;
+        const g = ctx.createGain();
+        env(g, when, peak, decay);
+        src.connect(f).connect(g).connect(dest);
+        src.start(when, Math.random() * 0.4);
+        src.stop(when + decay + 0.02);
+      };
+
+      return (when) => {
+        const v = 0.92 + Math.random() * 0.16;
+        // crack
+        noiseHit(when, 'highpass', 2200 * v, 0.7, 0.9, 0.04, comp, v);
+        // body
+        noiseHit(when, 'lowpass', 1100 * v, 0.9, 1.0, 0.17, shaper, v);
+        // ring in the mids
+        noiseHit(when, 'bandpass', 520 * v, 2.5, 0.6, 0.12, comp, v);
+        // low thump
+        const o = ctx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(150 * v, when);
+        o.frequency.exponentialRampToValueAtTime(42, when + 0.09);
+        const og = ctx.createGain();
+        env(og, when, 0.9, 0.13);
+        o.connect(og).connect(comp);
+        o.start(when);
+        o.stop(when + 0.15);
+        // bolt tick
+        const t = ctx.createOscillator();
+        t.type = 'square';
+        t.frequency.value = 2600 * v;
+        const tg = ctx.createGain();
+        env(tg, when + 0.004, 0.06, 0.018);
+        t.connect(tg).connect(comp);
+        t.start(when + 0.004);
+        t.stop(when + 0.03);
+      };
+    }
+    // End gunshot synth
+
+    let audio = null;
+    let playShot = null;
+    let soundOn = true;
+    try { soundOn = localStorage.getItem('negev-sound') !== 'off'; } catch (e) {}
+    const soundBtn = document.querySelector('.sound');
+    const showSound = () => {
+      soundBtn.setAttribute('aria-pressed', String(soundOn));
+      soundBtn.title = soundOn ? 'Mute shooting' : 'Unmute shooting';
+    };
+    showSound();
+    soundBtn.addEventListener('click', () => {
+      soundOn = !soundOn;
+      showSound();
+      if (soundOn) wakeAudio();
+      try { localStorage.setItem('negev-sound', soundOn ? 'on' : 'off'); } catch (e) {}
+    });
+    // Browsers only allow audio after a tap or click, so start it on the first press
+    const wakeAudio = () => {
+      if (!soundOn) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audio) {
+        audio = new AC();
+        playShot = makeGunAudio(audio, audio.destination);
+      }
+      if (audio.state === 'suspended') audio.resume();
+    };
+    const shotSound = () => {
+      if (!soundOn || !audio || !playShot) return;
+      playShot(audio.currentTime + 0.005);
+    };
 
     // ---- Negev cursor (mouse and trackpad only) ----
     // Aim point relative to the cursor box: just past the muzzle, along the barrel
@@ -464,6 +600,7 @@
       render();
       placeHole(x, y);
       kick();
+      shotSound();
       if (rounds === 0) reload();
       return true;
     };
@@ -521,6 +658,7 @@
     document.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || isUI(e.target)) return;
       if (e.pointerType === 'mouse') e.preventDefault();
+      wakeAudio();
       pullTrigger(e.pageX, e.pageY);
     });
     document.addEventListener('pointermove', (e) => {
