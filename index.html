@@ -5,49 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>negev.lol</title>
   <meta name="description" content="No negev no win.">
-  <meta name="theme-color" content="#ffb21e">
+  <meta name="theme-color" content="#f15f41">
   <meta property="og:title" content="negev.lol">
   <meta property="og:description" content="No negev no win.">
   <meta property="og:url" content="https://negev.lol/">
   <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231a1f15'/%3E%3Cg stroke='%23ffb21e' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M32 8v14M32 42v14M8 32h14M42 32h14'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='3.5' fill='%23ffb21e'/%3E%3C/svg%3E">
+  <meta property="og:image" content="https://negev.lol/negev-mjolnir.webp">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231f0c09'/%3E%3Cg stroke='%23f15f41' stroke-width='6' stroke-linecap='round'%3E%3Cpath d='M32 8v14M32 42v14M8 32h14M42 32h14'/%3E%3C/g%3E%3Ccircle cx='32' cy='32' r='3.5' fill='%23f0b16c'/%3E%3C/svg%3E">
+  <link rel="preload" href="negev-mjolnir.webp" as="image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:opsz,wght@10..72,100..900&family=Big+Shoulders+Stencil:opsz,wght@10..72,100..900&display=swap" rel="stylesheet">
   <style>
+    /* Palette pulled from the Negev | Mjölnir skin */
     :root {
-      --drab: #1a1f15;      /* olive-drab background */
-      --crate: #232a1c;     /* raised surface */
-      --bone: #ece6d3;      /* main text */
-      --dust: #9aa08a;      /* secondary text */
-      --line: rgba(236, 230, 211, 0.12);
-      --tracer: #ffb21e;    /* the one accent: tracer rounds */
-      --ember: #ff6a1a;     /* hot core of a fresh hit, used only in effects */
+      --oxblood: #1f0c09;   /* background: the skin's darkest red */
+      --rust: #3f150e;      /* deep red for glows */
+      --bone: #f6e6d6;      /* main text */
+      --bronze: #c3967a;    /* secondary text, from the receiver metal */
+      --line: rgba(195, 150, 122, 0.2);
+      --ember: #f15f41;     /* main accent: the skin's red-orange */
+      --gold: #f0b16c;      /* hot highlight: the glowing magazine */
 
       --col: 54rem;
       --gutter: 1rem;
 
-      --crosshair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke='%231a1f15' stroke-width='4' stroke-linecap='square'%3E%3Cpath d='M16 2v9M16 21v9M2 16h9M21 16h9'/%3E%3C/g%3E%3Cg stroke='%23ffb21e' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M16 3v7M16 22v7M3 16h7M22 16h7'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
+      --crosshair: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg stroke='%231f0c09' stroke-width='4' stroke-linecap='square'%3E%3Cpath d='M16 2v9M16 21v9M2 16h9M21 16h9'/%3E%3C/g%3E%3Cg stroke='%23f0b16c' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M16 3v7M16 22v7M3 16h7M22 16h7'/%3E%3C/g%3E%3C/svg%3E") 16 16, crosshair;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; background: var(--drab); }
+    html { -webkit-text-size-adjust: 100%; background: var(--oxblood); }
     body {
       margin: 0;
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
       background:
-        radial-gradient(120% 70% at 85% -10%, rgba(255, 178, 30, 0.10), transparent 60%),
-        var(--drab);
+        radial-gradient(70% 45% at 72% 30%, rgba(241, 95, 65, 0.16), transparent 70%),
+        radial-gradient(120% 60% at 10% 100%, rgba(63, 21, 14, 0.9), transparent 70%),
+        var(--oxblood);
       color: var(--bone);
       font-family: "Big Shoulders", "Arial Narrow", Arial, sans-serif;
       font-optical-sizing: auto;
       line-height: 1.4;
       cursor: var(--crosshair);
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
     a, button { cursor: var(--crosshair); }
-    ::selection { background: var(--tracer); color: var(--drab); }
 
     .page {
       max-width: var(--col);
@@ -71,7 +78,7 @@
       color: var(--bone);
       text-decoration: none;
     }
-    .wordmark span { color: var(--dust); font-weight: 500; }
+    .wordmark span { color: var(--bronze); font-weight: 500; }
     .ammo {
       display: flex;
       align-items: center;
@@ -79,30 +86,19 @@
       font-size: 1.6rem;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
-      color: var(--tracer);
+      color: var(--gold);
       line-height: 1;
     }
-    .ammo .rounds {
-      display: inline-flex;
-      gap: 3px;
-      align-items: flex-end;
-      height: 1rem;
-    }
-    .ammo .rounds i {
-      display: block;
-      width: 4px;
-      height: 100%;
-      border-radius: 2px 2px 0 0;
-      background: currentColor;
-    }
+    .ammo .rounds { display: inline-flex; gap: 3px; align-items: flex-end; height: 1rem; }
+    .ammo .rounds i { display: block; width: 4px; height: 100%; border-radius: 2px 2px 0 0; background: currentColor; }
     .ammo .count { min-width: 3ch; text-align: right; }
-    .ammo.empty { color: var(--ember); }
+    .ammo.low { color: var(--ember); }
     .ammo.reloading .count { animation: blink 0.35s steps(2) infinite; }
     @keyframes blink { 50% { opacity: 0.25; } }
 
     /* Hero quote: stencil, sized to span the column */
     .quote {
-      margin: clamp(1.5rem, 7vh, 4rem) 0 clamp(1.75rem, 6vh, 3.25rem);
+      margin: clamp(1.5rem, 6vh, 3.5rem) 0 0;
       font-family: "Big Shoulders Stencil", "Big Shoulders", Impact, sans-serif;
       font-weight: 900;
       /* sized so NO NEGEV spans the column; NO WIN is scaled up to match */
@@ -111,24 +107,68 @@
       letter-spacing: -0.01em;
       text-transform: uppercase;
       color: var(--bone);
-      will-change: transform;
     }
     .quote .line { display: block; white-space: nowrap; }
-    .quote .line + .line { color: var(--tracer); font-size: 1.265em; }
+    .quote .line + .line { color: var(--ember); font-size: 1.265em; }
+
+    /* The skin */
+    .gun {
+      position: relative;
+      z-index: 2;
+      container-type: inline-size;
+      width: min(100%, 38rem);
+      margin: -9% 0 0 auto;
+    }
+    .gun .body { position: relative; will-change: transform; }
+    .gun img {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 28px rgba(241, 95, 65, 0.25));
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+    .gun figcaption {
+      /* pulls the caption up past the empty bottom of the image */
+      margin-top: -10%;
+      text-align: right;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--bronze);
+    }
+    /* Muzzle flash, anchored to the barrel tip in the image */
+    .flash {
+      position: absolute;
+      left: 2.6%;
+      top: 13.2%;
+      width: 0;
+      height: 0;
+      transform: rotate(22deg);
+      pointer-events: none;
+    }
+    .flash::before {
+      content: "";
+      position: absolute;
+      right: -1cqw;
+      top: -6cqw;
+      width: 20cqw;
+      height: 12cqw;
+      background: radial-gradient(ellipse 100% 55% at 100% 50%, #fffbe8 0%, #ffe6a8 18%, var(--gold) 34%, rgba(241, 95, 65, 0.85) 58%, rgba(241, 95, 65, 0) 82%);
+      clip-path: polygon(100% 40%, 74% 0%, 70% 30%, 30% 8%, 52% 38%, 0% 50%, 52% 62%, 30% 92%, 70% 70%, 74% 100%, 100% 60%);
+      filter: drop-shadow(0 0 6px rgba(240, 177, 108, 0.9));
+      opacity: 0;
+    }
+    .flash.on::before { opacity: 1; }
 
     /* Video with viewfinder corners */
-    .clip { margin: 0 0 clamp(2.5rem, 7vh, 4rem); }
-    .frame {
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: #000;
-    }
+    .clip { margin: clamp(2.5rem, 6vh, 3.5rem) 0 clamp(2.5rem, 7vh, 4rem); }
+    .frame { position: relative; aspect-ratio: 16 / 9; background: #000; }
     .frame::after {
       content: "";
       position: absolute;
       inset: -8px;
       pointer-events: none;
-      --c: var(--tracer);
+      --c: var(--ember);
       --l: 22px;
       --w: 2px;
       background:
@@ -142,33 +182,21 @@
         linear-gradient(var(--c), var(--c)) bottom right / var(--w) var(--l);
       background-repeat: no-repeat;
     }
-    .frame iframe, .play {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .play {
-      padding: 0;
-      background: #000;
-      overflow: hidden;
-      color: var(--bone);
-      font: inherit;
-    }
+    .frame iframe, .play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .play { padding: 0; background: #000; overflow: hidden; color: var(--bone); font: inherit; }
     .play img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
-      filter: saturate(0.75) brightness(0.72) contrast(1.05);
+      filter: saturate(0.8) brightness(0.7) contrast(1.05);
       transition: filter 200ms ease;
     }
     .play::before {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, transparent 45%, rgba(26, 31, 21, 0.85));
+      background: linear-gradient(180deg, transparent 45%, rgba(31, 12, 9, 0.85));
     }
     .play .cta {
       position: absolute;
@@ -178,8 +206,8 @@
       align-items: center;
       gap: 0.6rem;
       padding: 0.55rem 1rem 0.55rem 0.85rem;
-      background: var(--tracer);
-      color: var(--drab);
+      background: var(--ember);
+      color: var(--oxblood);
       font-size: 1.25rem;
       font-weight: 800;
       line-height: 1;
@@ -187,22 +215,12 @@
     }
     .play .cta svg { width: 0.9em; height: 0.9em; fill: currentColor; }
     .play:hover img, .play:focus-visible img { filter: saturate(1) brightness(0.9) contrast(1.05); }
-    .play:hover .cta, .play:focus-visible .cta { background: var(--bone); }
-    .play:focus-visible { outline: 3px solid var(--tracer); outline-offset: 4px; }
-    .clip figcaption {
-      margin-top: 0.9rem;
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: var(--dust);
-    }
+    .play:hover .cta, .play:focus-visible .cta { background: var(--gold); }
+    .play:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+    .clip figcaption { margin-top: 0.9rem; font-size: 1.05rem; font-weight: 500; color: var(--bronze); }
 
     /* Links */
-    .links {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      border-top: 1px solid var(--line);
-    }
+    .links { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
     .links li { border-bottom: 1px solid var(--line); }
     .links a {
       position: relative;
@@ -220,32 +238,19 @@
       position: absolute;
       inset: 0;
       z-index: -1;
-      background: var(--tracer);
+      background: linear-gradient(90deg, var(--ember), var(--gold));
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 180ms cubic-bezier(.2, .7, .2, 1);
     }
-    .links .platform {
-      font-size: clamp(1.75rem, 6vw, 2.4rem);
-      font-weight: 800;
-      line-height: 1;
-    }
-    .links .handle {
-      font-size: clamp(1.05rem, 3.6vw, 1.3rem);
-      font-weight: 500;
-      color: var(--dust);
-      white-space: nowrap;
-    }
-    .links a:hover, .links a:focus-visible { color: var(--drab); outline: none; }
-    .links a:hover .handle, .links a:focus-visible .handle { color: var(--drab); }
+    .links .platform { font-size: clamp(1.75rem, 6vw, 2.4rem); font-weight: 800; line-height: 1; }
+    .links .handle { font-size: clamp(1.05rem, 3.6vw, 1.3rem); font-weight: 500; color: var(--bronze); white-space: nowrap; }
+    .links a:hover, .links a:focus-visible { color: var(--oxblood); outline: none; }
+    .links a:hover .handle, .links a:focus-visible .handle { color: var(--oxblood); }
     .links a:hover::before, .links a:focus-visible::before { transform: scaleX(1); }
-    .links a:focus-visible { box-shadow: 0 0 0 2px var(--drab), 0 0 0 4px var(--tracer); }
+    .links a:focus-visible { box-shadow: 0 0 0 2px var(--oxblood), 0 0 0 4px var(--gold); }
 
-    .hint {
-      margin: 2.25rem 0 0;
-      font-size: 1rem;
-      color: var(--dust);
-    }
+    .hint { margin: 2.25rem 0 0; font-size: 1rem; color: var(--bronze); }
     .hint .touch { display: none; }
     @media (hover: none) {
       .hint .mouse { display: none; }
@@ -253,29 +258,27 @@
     }
 
     /* Bullet holes */
-    .holes {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-      z-index: 5;
-    }
+    .holes { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
     .hole {
       position: absolute;
       width: var(--hole, 12px);
       height: var(--hole, 12px);
       margin: calc(var(--hole, 12px) / -2) 0 0 calc(var(--hole, 12px) / -2);
       border-radius: 50%;
-      background: radial-gradient(circle, #050604 0 30%, #7a5a22 40%, rgba(255, 178, 30, 0.7) 50%, rgba(255, 178, 30, 0.15) 62%, transparent 70%);
-      box-shadow: 0 0 6px 1px rgba(255, 120, 20, 0.35);
+      background: radial-gradient(circle, #050202 0 30%, #6e2a18 40%, rgba(240, 177, 108, 0.75) 50%, rgba(241, 95, 65, 0.18) 62%, transparent 70%);
+      box-shadow: 0 0 6px 1px rgba(241, 95, 65, 0.35);
       animation: hit 700ms ease-out both;
     }
     @keyframes hit {
-      0%   { transform: scale(2.6); box-shadow: 0 0 24px 9px var(--ember), 0 0 6px 2px var(--tracer); }
-      35%  { box-shadow: 0 0 12px 4px rgba(255, 106, 26, 0.6); }
-      100% { transform: scale(1); box-shadow: 0 0 6px 1px rgba(255, 120, 20, 0.35); }
+      0%   { transform: scale(2.6); box-shadow: 0 0 24px 9px var(--ember), 0 0 6px 2px var(--gold); }
+      35%  { box-shadow: 0 0 12px 4px rgba(241, 95, 65, 0.6); }
+      100% { transform: scale(1); box-shadow: 0 0 6px 1px rgba(241, 95, 65, 0.35); }
     }
     .holes.clearing .hole { transition: opacity 400ms ease; opacity: 0; }
+
+    @media (max-width: 560px) {
+      .gun { margin-top: -4%; }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .hole { animation: none; }
@@ -298,6 +301,14 @@
 
     <h1 class="quote"><span class="line">No negev</span><span class="line">no win</span></h1>
 
+    <figure class="gun">
+      <div class="body">
+        <img src="negev-mjolnir.webp" alt="Negev | Mjölnir" width="512" height="384" draggable="false">
+        <span class="flash" aria-hidden="true"></span>
+      </div>
+      <figcaption>Negev | Mjölnir</figcaption>
+    </figure>
+
     <figure class="clip">
       <div class="frame">
         <button class="play" type="button" data-id="gVtMugdBdO8" aria-label="Play video: Negev on b site">
@@ -315,26 +326,31 @@
       <li><a href="https://steamcommunity.com/profiles/76561199612436579/"><span class="platform">Steam</span><span class="handle">Profile</span></a></li>
     </ul>
 
-    <p class="hint"><span class="mouse">Click anywhere to shoot. Press R to reload.</span><span class="touch">Tap anywhere to shoot.</span></p>
+    <p class="hint"><span class="mouse">Hold anywhere to shoot. Press R to reload.</span><span class="touch">Hold anywhere to shoot.</span></p>
   </main>
 
   <script>
   (() => {
     const MAG = 150;
+    const RATE = 75; // ms between shots, roughly 800 rounds per minute
+    const CLIMB_SHOTS = 11; // shots before the spray settles into a laser
     const holes = document.querySelector('.holes');
     const ammo = document.querySelector('.ammo');
     const countEl = ammo.querySelector('.count');
     const quote = document.querySelector('.quote');
+    const gunBody = document.querySelector('.gun .body');
+    const flash = document.querySelector('.flash');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let rounds = MAG;
     let reloading = false;
+    let trigger = null;
 
     const render = () => {
       countEl.textContent = rounds;
-      ammo.classList.toggle('empty', rounds === 0);
+      ammo.classList.toggle('low', rounds <= 30);
     };
 
-    const hole = (x, y) => {
+    const placeHole = (x, y) => {
       const h = document.createElement('span');
       h.className = 'hole';
       h.style.left = x + 'px';
@@ -342,17 +358,34 @@
       holes.appendChild(h);
     };
 
-    const fire = (x, y) => {
+    // Muzzle flash and recoil on the gun
+    let flashTimer;
+    const kick = () => {
+      if (reduced) return;
+      flash.style.transform = `rotate(${20 + Math.random() * 4}deg) scale(${0.75 + Math.random() * 0.5})`;
+      flash.classList.add('on');
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(() => flash.classList.remove('on'), 45);
+      gunBody.animate(
+        [{ transform: 'translate(5px, 2px) rotate(-0.8deg)' }, { transform: 'none' }],
+        { duration: 70, easing: 'ease-out' }
+      );
+    };
+
+    // Fires one round at a page position. Returns false when nothing was fired.
+    const fireAt = (x, y) => {
       if (reloading || rounds === 0) return false;
       rounds--;
       render();
-      hole(x, y);
+      placeHole(x, y);
+      kick();
       if (rounds === 0) reload();
       return true;
     };
 
     function reload() {
       if (reloading || rounds === MAG) return;
+      stopTrigger();
       reloading = true;
       ammo.classList.add('reloading');
       holes.classList.add('clearing');
@@ -366,45 +399,53 @@
       }, reduced ? 300 : 1400);
     }
 
-    // Keep the hole layer as tall as the page
-    const sizeLayer = () => {
-      holes.style.height = document.documentElement.scrollHeight + 'px';
-      const fs = parseFloat(getComputedStyle(quote).fontSize);
-      holes.style.setProperty('--hole', Math.min(12, Math.max(7, fs * 0.05)) + 'px');
-    };
+    // Spray step size scales with the screen
+    const unit = () => Math.min(11, Math.max(6, innerWidth * 0.008));
 
-    // Opening spray: kicks up for the first shots, then settles into a laser
-    const spray = () => {
-      const line = quote.querySelector('.line');
-      const range = document.createRange();
-      range.selectNodeContents(line);
-      const r = range.getBoundingClientRect();
-      const fs = parseFloat(getComputedStyle(line).fontSize);
-      const shots = 30;
-      let x = r.left + scrollX + r.width * 0.6;
-      let y = r.bottom + scrollY - r.height * 0.2;
-      let i = 0;
-      const step = () => {
-        if (i > 0 && i < 11) {
-          y -= fs * (0.055 + Math.random() * 0.02);
-          x += (i > 3 ? (i % 2 ? 1 : -1) * fs * 0.03 : 0) + (Math.random() - 0.5) * fs * 0.03;
+    // Holds fire from (x, y). The pattern climbs for the first shots,
+    // then stays tight. `limit` caps the burst (used for the opening spray).
+    function pullTrigger(x, y, limit = Infinity) {
+      stopTrigger();
+      const u = unit();
+      const t = { x, y, n: 0, limit, dx: 0, dy: 0, held: limit === Infinity };
+      const shot = () => {
+        if (t.n > 0 && t.n < CLIMB_SHOTS) {
+          t.dy -= u * (1 + Math.random() * 0.4);
+          t.dx += (t.n > 3 ? (t.n % 2 ? 1 : -1) * u * 0.5 : 0) + (Math.random() - 0.5) * u * 0.5;
         }
-        const jitter = i < 11 ? 0 : fs * 0.05;
-        if (!fire(x + (Math.random() - 0.5) * jitter, y + (Math.random() - 0.5) * jitter)) return;
-        quote.animate(
-          [{ transform: 'translateY(-2px)' }, { transform: 'none' }],
-          { duration: 70, easing: 'ease-out' }
+        const j = t.n >= CLIMB_SHOTS ? u * 0.7 : 0;
+        const ok = fireAt(
+          t.x + t.dx + (Math.random() - 0.5) * 2 * j,
+          t.y + t.dy + (Math.random() - 0.5) * 2 * j
         );
-        if (++i < shots) setTimeout(step, 72);
+        t.n++;
+        if (!ok || t.n >= t.limit) stopTrigger();
       };
-      step();
-    };
+      trigger = t;
+      shot();
+      if (trigger === t) t.timer = setInterval(shot, RATE);
+    }
+    function stopTrigger() {
+      if (!trigger) return;
+      clearInterval(trigger.timer);
+      trigger = null;
+    }
+
+    const isUI = (el) => el.closest('a, button, iframe');
 
     document.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0) return;
-      if (e.target.closest('a, button, iframe')) return;
-      fire(e.pageX, e.pageY);
+      if (e.button !== 0 || isUI(e.target)) return;
+      if (e.pointerType === 'mouse') e.preventDefault();
+      pullTrigger(e.pageX, e.pageY);
     });
+    document.addEventListener('pointermove', (e) => {
+      if (trigger && trigger.held) { trigger.x = e.pageX; trigger.y = e.pageY; }
+    });
+    ['pointerup', 'pointercancel'].forEach((type) => document.addEventListener(type, () => {
+      if (trigger && trigger.held) stopTrigger();
+    }));
+    addEventListener('blur', stopTrigger);
+    document.addEventListener('contextmenu', (e) => { if (!isUI(e.target)) e.preventDefault(); });
     document.addEventListener('keydown', (e) => {
       if ((e.key === 'r' || e.key === 'R') && !e.metaKey && !e.ctrlKey && !e.altKey) reload();
     });
@@ -421,13 +462,28 @@
       f.focus();
     });
 
+    const sizeLayer = () => {
+      holes.style.height = document.documentElement.scrollHeight + 'px';
+      holes.style.setProperty('--hole', Math.min(12, Math.max(7, innerWidth * 0.011)) + 'px');
+    };
+
+    // Opening burst at the quote
+    const openingSpray = () => {
+      const line = quote.querySelector('.line');
+      const range = document.createRange();
+      range.selectNodeContents(line);
+      const r = range.getBoundingClientRect();
+      pullTrigger(r.left + scrollX + r.width * 0.6, r.bottom + scrollY - r.height * 0.18, 30);
+    };
+
     render();
     const start = () => {
       sizeLayer();
-      if (!reduced) setTimeout(spray, 350);
+      if (!reduced) setTimeout(openingSpray, 350);
     };
     (document.fonts ? document.fonts.ready : Promise.resolve()).then(start);
     addEventListener('resize', sizeLayer);
+    addEventListener('load', sizeLayer);
   })();
   </script>
 </body>
