@@ -115,11 +115,10 @@
     .gun {
       position: relative;
       z-index: 2;
-      container-type: inline-size;
       width: min(100%, 38rem);
       margin: -9% 0 0 auto;
     }
-    .gun .body { position: relative; will-change: transform; }
+    .gun .body { position: relative; }
     .gun img {
       display: block;
       width: 100%;
@@ -136,7 +135,42 @@
       font-weight: 600;
       color: var(--bronze);
     }
-    /* Muzzle flash, anchored to the barrel tip in the image */
+    /* Negev cursor: replaces the mouse pointer, aim point sits just past the muzzle */
+    .has-gun-cursor, .has-gun-cursor * { cursor: none !important; }
+    .cursor {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      width: 120px;
+      pointer-events: none;
+      container-type: inline-size;
+      opacity: 0;
+      will-change: transform;
+    }
+    .cursor.visible { opacity: 1; }
+    .cursor .kick { position: relative; transform-origin: 70% 60%; }
+    .cursor img {
+      display: block;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6));
+    }
+    .cursor::before {
+      /* tiny aim dot at the hotspot */
+      content: "";
+      position: absolute;
+      left: var(--aim-x);
+      top: var(--aim-y);
+      width: 4px;
+      height: 4px;
+      margin: -2px 0 0 -2px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 1px var(--oxblood);
+    }
+
+    /* Muzzle flash, anchored to the barrel tip of the cursor image */
     .flash {
       position: absolute;
       left: 2.6%;
@@ -289,6 +323,12 @@
 </head>
 <body>
   <div class="holes" aria-hidden="true"></div>
+  <div class="cursor" aria-hidden="true">
+    <div class="kick">
+      <img src="negev-mjolnir.webp" alt="" width="512" height="384" draggable="false">
+      <span class="flash"></span>
+    </div>
+  </div>
 
   <main class="page">
     <header class="bar">
@@ -304,19 +344,18 @@
     <figure class="gun">
       <div class="body">
         <img src="negev-mjolnir.webp" alt="Negev | Mjölnir" width="512" height="384" draggable="false">
-        <span class="flash" aria-hidden="true"></span>
       </div>
       <figcaption>Negev | Mjölnir</figcaption>
     </figure>
 
     <figure class="clip">
       <div class="frame">
-        <button class="play" type="button" data-id="gVtMugdBdO8" aria-label="Play video: Negev on b site">
+        <button class="play" type="button" data-id="gVtMugdBdO8" data-title="admins give him a negev" aria-label="Play video: admins give him a negev">
           <img src="https://i.ytimg.com/vi/gVtMugdBdO8/hqdefault.jpg" alt="" width="480" height="360">
           <span class="cta"><svg viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0l10 6-10 6z"/></svg>Play</span>
         </button>
       </div>
-      <figcaption>Negev on b site</figcaption>
+      <figcaption>admins give him a negev</figcaption>
     </figure>
 
     <ul class="links">
@@ -324,6 +363,7 @@
       <li><a href="https://medal.tv/u/snorlax"><span class="platform">Medal</span><span class="handle">@snorlax</span></a></li>
       <li><a href="https://t.me/murkrow"><span class="platform">Telegram</span><span class="handle">@murkrow</span></a></li>
       <li><a href="https://steamcommunity.com/profiles/76561199612436579/"><span class="platform">Steam</span><span class="handle">Profile</span></a></li>
+      <li><a href="https://www.faceit.com/en/players/flixpeek"><span class="platform">FACEIT</span><span class="handle">@flixpeek</span></a></li>
     </ul>
 
     <p class="hint"><span class="mouse">Hold anywhere to shoot. Press R to reload.</span><span class="touch">Hold anywhere to shoot.</span></p>
@@ -337,13 +377,37 @@
     const holes = document.querySelector('.holes');
     const ammo = document.querySelector('.ammo');
     const countEl = ammo.querySelector('.count');
-    const quote = document.querySelector('.quote');
-    const gunBody = document.querySelector('.gun .body');
-    const flash = document.querySelector('.flash');
+    const cursor = document.querySelector('.cursor');
+    const recoil = cursor.querySelector('.kick');
+    const flash = cursor.querySelector('.flash');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let rounds = MAG;
     let reloading = false;
     let trigger = null;
+
+    // ---- Negev cursor (mouse and trackpad only) ----
+    // Aim point relative to the cursor box: just past the muzzle, along the barrel
+    const AIM = { x: -4.4, y: 8.7 };
+    const gunCursor = matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let cx = 0, cy = 0, queued = false;
+    const placeCursor = () => {
+      queued = false;
+      cursor.style.transform = `translate3d(${cx - AIM.x}px, ${cy - AIM.y}px, 0)`;
+    };
+    if (gunCursor) {
+      document.documentElement.classList.add('has-gun-cursor');
+      cursor.style.setProperty('--aim-x', AIM.x + 'px');
+      cursor.style.setProperty('--aim-y', AIM.y + 'px');
+      document.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        cx = e.clientX; cy = e.clientY;
+        cursor.classList.add('visible');
+        if (!queued) { queued = true; requestAnimationFrame(placeCursor); }
+      });
+      document.documentElement.addEventListener('mouseleave', () => cursor.classList.remove('visible'));
+    } else {
+      cursor.remove();
+    }
 
     const render = () => {
       countEl.textContent = rounds;
@@ -358,16 +422,16 @@
       holes.appendChild(h);
     };
 
-    // Muzzle flash and recoil on the gun
+    // Muzzle flash and recoil on the cursor
     let flashTimer;
     const kick = () => {
-      if (reduced) return;
+      if (reduced || !gunCursor) return;
       flash.style.transform = `rotate(${20 + Math.random() * 4}deg) scale(${0.75 + Math.random() * 0.5})`;
       flash.classList.add('on');
       clearTimeout(flashTimer);
       flashTimer = setTimeout(() => flash.classList.remove('on'), 45);
-      gunBody.animate(
-        [{ transform: 'translate(5px, 2px) rotate(-0.8deg)' }, { transform: 'none' }],
+      recoil.animate(
+        [{ transform: 'translate(5px, 3px) rotate(3deg)' }, { transform: 'none' }],
         { duration: 70, easing: 'ease-out' }
       );
     };
@@ -403,11 +467,11 @@
     const unit = () => Math.min(11, Math.max(6, innerWidth * 0.008));
 
     // Holds fire from (x, y). The pattern climbs for the first shots,
-    // then stays tight. `limit` caps the burst (used for the opening spray).
-    function pullTrigger(x, y, limit = Infinity) {
+    // then stays tight like the Negev does once it settles.
+    function pullTrigger(x, y) {
       stopTrigger();
       const u = unit();
-      const t = { x, y, n: 0, limit, dx: 0, dy: 0, held: limit === Infinity };
+      const t = { x, y, n: 0, dx: 0, dy: 0 };
       const shot = () => {
         if (t.n > 0 && t.n < CLIMB_SHOTS) {
           t.dy -= u * (1 + Math.random() * 0.4);
@@ -419,7 +483,7 @@
           t.y + t.dy + (Math.random() - 0.5) * 2 * j
         );
         t.n++;
-        if (!ok || t.n >= t.limit) stopTrigger();
+        if (!ok) stopTrigger();
       };
       trigger = t;
       shot();
@@ -439,11 +503,9 @@
       pullTrigger(e.pageX, e.pageY);
     });
     document.addEventListener('pointermove', (e) => {
-      if (trigger && trigger.held) { trigger.x = e.pageX; trigger.y = e.pageY; }
+      if (trigger) { trigger.x = e.pageX; trigger.y = e.pageY; }
     });
-    ['pointerup', 'pointercancel'].forEach((type) => document.addEventListener(type, () => {
-      if (trigger && trigger.held) stopTrigger();
-    }));
+    ['pointerup', 'pointercancel'].forEach((type) => document.addEventListener(type, stopTrigger));
     addEventListener('blur', stopTrigger);
     document.addEventListener('contextmenu', (e) => { if (!isUI(e.target)) e.preventDefault(); });
     document.addEventListener('keydown', (e) => {
@@ -455,9 +517,12 @@
     play.addEventListener('click', () => {
       const f = document.createElement('iframe');
       f.src = `https://www.youtube-nocookie.com/embed/${play.dataset.id}?autoplay=1&rel=0`;
-      f.title = 'Negev on b site';
+      f.title = play.dataset.title;
       f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
       f.allowFullscreen = true;
+      // The player has its own pointer, so hide the Negev while over it
+      f.addEventListener('mouseenter', () => cursor.classList.remove('visible'));
+      f.addEventListener('mouseleave', () => cursor.classList.add('visible'));
       play.replaceWith(f);
       f.focus();
     });
@@ -467,21 +532,8 @@
       holes.style.setProperty('--hole', Math.min(12, Math.max(7, innerWidth * 0.011)) + 'px');
     };
 
-    // Opening burst at the quote
-    const openingSpray = () => {
-      const line = quote.querySelector('.line');
-      const range = document.createRange();
-      range.selectNodeContents(line);
-      const r = range.getBoundingClientRect();
-      pullTrigger(r.left + scrollX + r.width * 0.6, r.bottom + scrollY - r.height * 0.18, 30);
-    };
-
     render();
-    const start = () => {
-      sizeLayer();
-      if (!reduced) setTimeout(openingSpray, 350);
-    };
-    (document.fonts ? document.fonts.ready : Promise.resolve()).then(start);
+    sizeLayer();
     addEventListener('resize', sizeLayer);
     addEventListener('load', sizeLayer);
   })();
